@@ -1,6 +1,7 @@
 package css.cis3334.fishlocatorfirebase;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,18 +29,68 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference myFishDbRef;
     int positionSelected;
     Fish fishSelected;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         setupFirebaseDataChange();
         setupListView();
         setupAddButton();
         setupDetailButton();
         setupDeleteButton();
+
+        mAuth = FirebaseAuth.getInstance(); //declare object for Firebase
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() { //initialized mAuthListener
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                //track the user when they sign in or out using the firebaseAuth
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // User is signed out
+                    Log.d("CSS3334","onAuthStateChanged - User NOT is signed in");
+                    Intent signInIntent = new Intent(getBaseContext(), LoginActivity.class);
+                    startActivity(signInIntent);
+                }
+            }
+        };
     }
+
+    private void signIn(String email, String password){
+        //sign in the recurrent user with email and password previously created.
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() { //add to listener
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (!task.isSuccessful()) { //when failed
+                    Toast.makeText(LoginActivity.this, "SignIn--Authentication failed.",Toast.LENGTH_LONG).show();
+                } else {
+                    //return to MainActivity is login works
+                    finish();
+                }
+            }
+        });
+    }
+
+    private void createAccount(String email, String password) {
+        //create account for new users
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {  //update listener.
+                if (!task.isSuccessful()) { //when failed
+                    Toast.makeText(LoginActivity.this, "createAccount--Authentication failed.",Toast.LENGTH_LONG).show();
+                } else {
+                    //return to MainActivity is login works
+                    finish();
+                }
+            }
+        });
+    }
+
 
     private void setupFirebaseDataChange() {
         fishDataSource = new FishFirebaseData();

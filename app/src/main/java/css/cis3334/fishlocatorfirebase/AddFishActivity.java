@@ -45,8 +45,8 @@ public class AddFishActivity extends AppCompatActivity {
         }// else {
         Location location = locationManager.getLastKnownLocation();
         //if (location != null) {
-        //lattitude = location.getLatitude();
-        //longiture = location.getLongitude();
+        lattitude = location.getLatitude();
+        longiture = location.getLongitude();
         //} else {
         // lattitude = 0.0;
         // longiture = 0.0;

@@ -18,10 +18,10 @@ public class FishFirebaseData {
     public static final String FishDataTag = "Fish Data";
 
     public DatabaseReference open()  {
-        // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         myFishDbRef = database.getReference(FishDataTag);
         return myFishDbRef;
+        // Write a message to the database
     }
 
     public void close() {
